@@ -13,3 +13,4 @@ Ideas:
 - Make the roads curve
 - Make the fitness function make sure the car is in the center of the lane
 - Take control of the car on key press then let the brain take back control
+- Remove the best car if it has been going for awhile, if all the mutations die then there is no benefit to keep going

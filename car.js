@@ -90,9 +90,9 @@ class Car {
     }
 
     #assessDamage(roadboarder, traffic, time){
-        if(time > 5 && this.speed < (2*this.maxSpeed)/3){
-            return true
-        }
+        // if(time > 5 && this.speed < (2*this.maxSpeed)/3){
+        //     return true
+        // }
         for(let i = 0; i < roadboarder.length; i++){
             if(polysIntersect(this.polygon, roadboarder[i])){
                 return true;

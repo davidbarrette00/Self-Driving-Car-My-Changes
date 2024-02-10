@@ -9,6 +9,7 @@ carHeight = 50;
 carY = window.innerHeight*0.67
 
 score = 0
+generation = localStorage.getItem("Generation") ? localStorage.getItem("Generation") : 0;
 
 
 const carCtx = carCanvas.getContext("2d")
@@ -46,6 +47,8 @@ animate();
 function save(){
     localStorage.setItem("bestBrain",
         JSON.stringify(bestCar.brain));
+    localStorage.setItem("Generation",
+        generation);
     console.log("Saved Brain")
 }
 
@@ -103,7 +106,11 @@ function draw(){
 }
 
 function animate(time){
+    carsLeft = cars.filter(car=>car.damaged===false)
+    console.log(generation)
     document.getElementById("Score").innerHTML = score
+    document.getElementById("Generation").innerHTML = generation
+    document.getElementById("numCars").innerHTML = carsLeft.length
     update(time/1000)
 
     bestCar = cars.find(
@@ -120,11 +127,17 @@ function animate(time){
     networkCtx.lineDashOffset = -time/100
     Visualizer.drawNetwork(networkCtx, bestCar.brain)
 
-    carsUndamaged = cars.some(car => car.damaged === false)
-    if(!carsUndamaged){
+    if(carsLeft === 0 || !carsLeft.includes(bestCar)){
+        if(carsLeft ===0){
+            console.log("All Died")
+        }
+        bestCar.damaged = true
         setTimeout(
-            function(){
-                save()
+            function(i){
+                if(i === 0){
+                    generation++
+                    save()
+                }
                 location.reload()
             }, 200
         )
