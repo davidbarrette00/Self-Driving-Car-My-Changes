@@ -8,8 +8,8 @@ class Car {
 
         this.angle = 0
         this.speed = 0;
-        this.acceleration = 0.2;
-        this.rotationSpeed = 0.03
+        this.acceleration = 0.1;
+        this.rotationSpeed = 0.003
         this.maxSpeed = 10;
         this.friction = 0.05;
         this.damaged = false
@@ -27,11 +27,11 @@ class Car {
         this.controls = new Controls(controlType)
     }
 
-    update(roadBorders, traffic) {
+    updateMainCar(roadBorders, traffic, time) {
         if (!this.damaged) {
             this.#move()
             this.polygon = this.#createPolygon()
-            this.damaged = this.#assessDamage(roadBorders, traffic)
+            this.damaged = this.#assessDamage(roadBorders, traffic, time)
         }
         if(this.sensor) {
             this.sensor.update(roadBorders, traffic)
@@ -47,6 +47,20 @@ class Car {
                 this.controls.reverse = outputs[3]
             }
         }
+
+        if(this.damaged){
+
+        }
+    }
+
+    updateTraffic(bestCar) {
+        this.#move()
+        this.polygon = this.#createPolygon()
+        if(this.y > bestCar.y+window.innerHeight/2){
+            this.x = road.getLaneCenter(Math.floor(Math.random()*10)%road.laneCount)
+            this.y = bestCar.y - window.innerHeight - (Math.random()*500)
+        }
+
     }
 
     #createPolygon(){
@@ -75,7 +89,10 @@ class Car {
         return points
     }
 
-    #assessDamage(roadboarder, traffic){
+    #assessDamage(roadboarder, traffic, time){
+        if(time > 5 && this.speed < (2*this.maxSpeed)/3){
+            return true
+        }
         for(let i = 0; i < roadboarder.length; i++){
             if(polysIntersect(this.polygon, roadboarder[i])){
                 return true;

@@ -11,6 +11,8 @@ class Road{
         this.top=-infinity;
         this.bottom=infinity;
 
+        this.animationOffset = 0
+
         const topLeft={x:this.left,y:this.top};
         const topRight={x:this.right,y:this.top};
         const bottomLeft={x:this.left,y:this.bottom};
@@ -27,9 +29,12 @@ class Road{
             Math.min(laneIndex,this.laneCount-1)*laneWidth;
     }
 
-    draw(ctx){
+    draw(ctx, carSpeed = 0){
         ctx.lineWidth=5;
         ctx.strokeStyle="white";
+
+        this.animationOffset += carSpeed*-1
+        ctx.lineDashOffset = this.animationOffset
 
         for(let i=1;i<=this.laneCount-1;i++){
             const x=lerp(

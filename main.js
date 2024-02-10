@@ -5,7 +5,11 @@ const networkCanvas = document.getElementById("networkCanvas");
 networkCanvas.width = 300;
 
 carWidth = 30;
-carHeight = 50
+carHeight = 50;
+carY = window.innerHeight*0.67
+
+score = 0
+
 
 const carCtx = carCanvas.getContext("2d")
 const networkCtx = networkCanvas.getContext("2d")
@@ -18,21 +22,26 @@ if(localStorage.getItem("bestBrain")){
     for(let i = 0; i < cars.length; i++){
         cars[i].brain = JSON.parse(localStorage.getItem("bestBrain"))
         if(i !== 0){
-            NeuralNetwork.mutate(cars[i].brain, 0.10)
+            NeuralNetwork.mutate(cars[i].brain, 0.25)
         }
     }
 }
 
 const traffic = [
-    new Car(road.getLaneCenter(1), -100, carWidth, carHeight, "DUMMY", 2),
-    new Car(road.getLaneCenter(0), -300, carWidth, carHeight, "DUMMY", 2),
-    new Car(road.getLaneCenter(2), -300, carWidth, carHeight, "DUMMY", 2),
-    new Car(road.getLaneCenter(1), -500, carWidth, carHeight, "DUMMY", 2),
-    new Car(road.getLaneCenter(0), -500, carWidth, carHeight, "DUMMY", 2),
-    new Car(road.getLaneCenter(2), -700, carWidth, carHeight, "DUMMY", 2),
-    new Car(road.getLaneCenter(4), -700, carWidth, carHeight, "DUMMY", 2)
+    new Car(road.getLaneCenter(1), -50, carWidth, carHeight, "DUMMY", 1),
+    new Car(road.getLaneCenter(0), -300, carWidth, carHeight, "DUMMY", 1),
+    new Car(road.getLaneCenter(2), -400, carWidth, carHeight, "DUMMY", 1),
+    new Car(road.getLaneCenter(1), -600, carWidth, carHeight, "DUMMY", 1),
+    new Car(road.getLaneCenter(0), -600, carWidth, carHeight, "DUMMY", 1),
+    new Car(road.getLaneCenter(2), -900, carWidth, carHeight, "DUMMY", 1),
+    new Car(road.getLaneCenter(4), -1300, carWidth, carHeight, "DUMMY", 1)
 ]
 animate();
+
+
+
+
+
 
 function save(){
     localStorage.setItem("bestBrain",
@@ -46,22 +55,57 @@ function discard() {
     console.log("Discarded Brain")
 }
 
+function reload() {
+    location.reload()
+}
+
+function saveForNextTime() {
+    new File(JSON.stringify(bestCar.brain), "bestBrain.txt")
+}
+
 function generateCars(N){
     const cars=[];
-    for(let i=1;i<=N;i++){
-        cars.push(new Car(road.getLaneCenter(1),100,30,50,"AI"));
+    for(let i=0; i < N;i++){
+        cars.push(new Car(road.getLaneCenter(1),carY,30,50,"AI"));
     }
     return cars;
 }
 
-function animate(time){
+function update(time){
     for(let i = 0; i < traffic.length; i++){
-        traffic[i].update(road.borders, [])
+        traffic[i].updateTraffic(bestCar)
     }
 
     for(let i = 0; i < cars.length; i++){
-        cars[i].update(road.borders, traffic);
+        cars[i].updateMainCar(road.borders, traffic, time);
     }
+
+    score = parseInt(-bestCar.y/500)
+}
+
+function draw(){
+    carCtx.save()
+    carCtx.translate(0, 0-bestCar.y+carCanvas.height*0.67)
+
+    road.draw(carCtx)
+    for(let i = 0; i < traffic.length; i++){
+        traffic[i].draw(carCtx, "green")
+    }
+
+    carCtx.globalAlpha = 0.2
+        for(let i = 0; i < cars.length; i++){
+        cars[i].draw(carCtx, "blue")
+    }
+    carCtx.globalAlpha = 1
+    bestCar.draw(carCtx, "blue", true)
+
+    carCtx.restore()
+}
+
+function animate(time){
+    document.getElementById("Score").innerHTML = score
+    update(time/1000)
+
     bestCar = cars.find(
         c=>c.y===Math.min(
             ...cars.map(c=>c.y)
@@ -71,24 +115,19 @@ function animate(time){
     carCanvas.height = window.innerHeight
     networkCanvas.height = window.innerHeight
 
-    carCtx.save()
-    carCtx.translate(0, 0-bestCar.y+carCanvas.height*0.67)
-
-    road.draw(carCtx)
-    for(let i = 0; i < traffic.length; i++){
-        traffic[i].draw(carCtx, "green")
-    }
-
-    bestCar.draw(carCtx, "blue", true)
-    carCtx.globalAlpha = 0.2
-    for(let i = 1; i < cars.length; i++){
-        cars[i].draw(carCtx, "blue")
-    }
-    carCtx.globalAlpha = 1
-
-    carCtx.restore()
+    draw()
 
     networkCtx.lineDashOffset = -time/100
     Visualizer.drawNetwork(networkCtx, bestCar.brain)
+
+    carsUndamaged = cars.some(car => car.damaged === false)
+    if(!carsUndamaged){
+        setTimeout(
+            function(){
+                save()
+                location.reload()
+            }, 200
+        )
+    }
     requestAnimationFrame(animate)
 }
