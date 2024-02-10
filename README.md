@@ -3,6 +3,11 @@
 Followed along with this youtube tutorial to get started: https://www.youtube.com/watch?v=Rs_rAxEsAvI
 
 
+To Run:
+Clone the repo--> Just run index.html in a browser
+
+Download the zip --> Unpack the zip from your downloads (into downloads is fine) then open the folder called SelfDrivingCar and click the file called index.html
+
 
 Ideas:
 - Make the roads curve
