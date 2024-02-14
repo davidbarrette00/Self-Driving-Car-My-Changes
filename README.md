@@ -14,3 +14,4 @@ Ideas:
 - Make the fitness function make sure the car is in the center of the lane
 - Take control of the car on key press then let the brain take back control
 - Remove the best car if it has been going for awhile, if all the mutations die then there is no benefit to keep going
+- Instead of saving on best reload, check if the new best car has a higher score than the previous run. Can't assume the newer best car is better because the traffic is randomized
